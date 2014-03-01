@@ -11,14 +11,14 @@ for i in git make vim par; do
   fi
 done
 
-endpath="$HOME/.begriffs-vim"
+endpath="$HOME/.geek4good-vim"
 
 if [ ! -e $endpath/.git ]; then
-  msg "Cloning begriffs/vimrc"
-  git clone https://github.com/begriffs/vimrc.git $endpath
+  msg "Cloning geek4good/vimrc"
+  git clone https://github.com/geek4good/vimrc.git $endpath
 else
   msg "Existing installation detected"
-  msg "Updating from begriffs/vimrc"
+  msg "Updating from geek4good/vimrc"
   cd $endpath && git pull
 fi
 

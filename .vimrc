@@ -13,14 +13,12 @@
 "    -> Spell checking
 "    -> Misc
 "    -> Helper functions
-"    -> Slime
-"    -> Turbux
 "    -> NERDTree
 "    -> Alignment
 "    -> Tags
 "    -> Git
-"    -> Commenting
 "    -> Conversion
+"    -> Rails
 "    -> Customization
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
@@ -61,38 +59,40 @@ Bundle 'gmarik/vundle'
 
 " My Bundles here:
 Bundle 'xolox/vim-misc'
-Bundle 'tpope/vim-rails'
-Bundle 'tpope/vim-fugitive'
-Bundle 'int3/vim-extradite'
-Bundle 'jgdavey/tslime.vim'
-Bundle 'jgdavey/vim-turbux'
+Bundle 'tomtom/tlib_vim'
+Bundle 'MarcWeber/vim-addon-mw-utils'
+
+Bundle 'vim-scripts/Gundo'
+Bundle 'vim-scripts/Rename2'
+Bundle 'kien/ctrlp.vim'
 Bundle 'scrooloose/nerdtree'
-Bundle 'majutsushi/tagbar'
-Bundle 'tpope/vim-surround'
-Bundle 'xolox/vim-easytags'
 Bundle 'bling/vim-airline'
-Bundle 'vim-ruby/vim-ruby'
-Bundle 'tpope/vim-cucumber'
-Bundle 'tpope/vim-commentary'
+Bundle 'jeffkreeftmeijer/vim-numbertoggle'
+
+Bundle 'scrooloose/nerdcommenter'
 Bundle 'vim-scripts/Align'
 Bundle 'edsono/vim-matchit'
+Bundle 'tpope/vim-endwise'
+Bundle 'tpope/vim-surround'
+Bundle 'tpope/vim-repeat'
 Bundle 'michaeljsmith/vim-indent-object'
 Bundle 'kana/vim-textobj-user'
-Bundle 'nelstrom/vim-textobj-rubyblock'
-Bundle 'tpope/vim-abolish'
-Bundle 'vim-scripts/Gundo'
-Bundle 'tpope/vim-endwise'
 Bundle 'ervandew/supertab'
 Bundle 'Raimondi/delimitMate'
-Bundle 'docunext/closetag.vim'
-Bundle 'kchmck/vim-coffee-script'
-Bundle 'joshuarh/vim-stopsign'
-Bundle 'kien/ctrlp.vim'
-Bundle 'christoomey/vim-tmux-navigator'
+Bundle 'garbas/vim-snipmate'
+Bundle 'honza/vim-snippets'
+Bundle 'xolox/vim-easytags'
+Bundle 'majutsushi/tagbar'
 
-" Haskell stuff
-Bundle 'vim-scripts/haskell.vim'
-Bundle 'pbrisbin/html-template-syntax'
+Bundle 'tpope/vim-fugitive'
+Bundle 'gregsexton/gitv'
+Bundle 'mhinz/vim-signify'
+
+Bundle 'vim-ruby/vim-ruby'
+Bundle 'nelstrom/vim-textobj-rubyblock'
+Bundle 'tpope/vim-rails'
+Bundle 'kchmck/vim-coffee-script'
+Bundle 'slim-template/vim-slim.git'
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " => VIM user interface
@@ -227,8 +227,8 @@ set encoding=utf8
 " Use Unix as the standard file type
 set ffs=unix,dos,mac
 
-" Use large font by default in MacVim
-set gfn=Monaco:h19
+" Use patched font
+set gfn=Sauce\ Code\ Powerline\ Light:h14
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " => Files, backups and undo
@@ -237,6 +237,7 @@ set gfn=Monaco:h19
 set nobackup
 set nowb
 set noswapfile
+set hidden
 
 " Source the vimrc file after saving it
 augroup sourcing
@@ -245,7 +246,13 @@ augroup sourcing
 augroup END
 
 " Open file prompt with current path
-nmap <leader>e :e <C-R>=expand("%:p:h") . '/'<CR>
+nmap <leader>ew :e <C-R>=expand("%:p:h") . '/'<CR>
+nmap <leader>ev :vs <C-R>=expand("%:p:h") . '/'<CR>
+nmap <leader>es :sp <C-R>=expand("%:p:h") . '/'<CR>
+nmap <leader>et :tabe <C-R>=expand("%:p:h") . '/'<CR>
+
+" Go back to previous file
+nmap <leader>p <C-^><CR>
 
 " Show undo tree
 nmap <silent> <leader>u :GundoToggle<CR>
@@ -293,9 +300,9 @@ vnoremap <silent> # :call VisualSelection('b', '')<CR>
 nnoremap j gj
 nnoremap k gk
 
-" Disable highlight when <leader><cr> is pressed
+" Disable highlight when <leader>hl is pressed
 " but preserve cursor coloring
-map <silent> <leader><cr> :noh<cr>:hi Cursor ctermbg=red guibg=red<cr>
+map <silent> <bs> :set nohlsearch!<cr>:hi Cursor ctermbg=red guibg=red<cr>
 
 " Return to last edit position when opening files (You want this!)
 augroup last_edit
@@ -327,6 +334,8 @@ endif
 """"""""""""""""""""""""""""""
 " Always show the status line
 set laststatus=2
+let g:airline_powerline_fonts = 1
+let g:airline_theme = 'badwolf'
 
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -386,22 +395,6 @@ endfunction
 
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" => Slime
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-vmap <silent> <Leader>rs <Plug>SendSelectionToTmux
-nmap <silent> <Leader>rs <Plug>NormalModeSendToTmux
-nmap <silent> <Leader>rv <Plug>SetTmuxVars
-
-
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" => Turbux
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-let g:no_turbux_mappings = 1
-nmap <leader>rT <Plug>SendTestToTmux
-nmap <leader>rt <Plug>SendFocusedTestToTmux
-
-
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " => NERDTree
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Close nerdtree after a file is selected
@@ -435,7 +428,7 @@ map <Leader>a, :Align ,<CR>
 " Align on pipes
 map <Leader>a<bar> :Align <bar><CR>
 " Prompt for align character
-map <leader>ap :Align
+map <leader>ap :Align 
 
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -498,6 +491,9 @@ endfunction
 " Show list of last-committed files
 nnoremap <silent> <leader>g? :call CommittedFiles()<CR>:copen<CR>
 
+" Set up gitv
+let g:Gitv_OpenHorizontal = 1
+nmap <leader>gv :Gitv<CR>
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " => Conversion
@@ -518,6 +514,16 @@ nmap <leader>2u cru
 " Convert name to dash-case
 nmap <leader>2- cr-
 
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" => Ruby/Rails
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+nmap <leader>a :A<CR>
+nmap <leader>va :AV<CR>
+nmap <leader>rc :Rcontroller 
+nmap <leader>rl :Rlayout 
+nmap <leader>rm :Rmodel 
+nmap <leader>rv :Rview 
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " => Customization
